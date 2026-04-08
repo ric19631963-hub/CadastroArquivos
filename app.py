@@ -69,7 +69,7 @@ def tela_discos():
 def tela_busca():
     st.title("🔍 Busca de Arquivos")
 
-    termo = st.text_input("Buscar no caminho completo:")
+    termo = st.text_input("Buscar por nome de arquivo:")
 
     if st.button("Buscar"):
         if termo.strip() == "":
@@ -79,7 +79,17 @@ def tela_busca():
         conn = conectar()
 
         query = """
-        SELECT * FROM captura_web.tb_carga_captura
+        SELECT 
+        "ID_CARGA_CAPTURA", 
+        "NOME_DISCO", 
+        "NOME_PASTA", 
+        "NOME_ARQUIVO", 
+        "DATA_GRAVACAO", 
+        "TITULO", 
+        "TAMANHO_ARQUIVO", 
+        "DATA_ARQUIVO", 
+        "TIPO_ARQUIVO"
+        FROM captura_web.tb_carga_captura
         WHERE "CAMINHO_COMPLETO" ILIKE %s
         ORDER BY "NOME_DISCO", "NOME_PASTA", "NOME_ARQUIVO";
         """
@@ -102,7 +112,8 @@ def sistema():
         st.session_state.logado = False
         st.rerun()
 
-    pagina = st.sidebar.radio("Menu", ["Discos", "Busca"])
+    # pagina = st.sidebar.radio("Menu", ["Discos", "Busca"])
+    pagina = st.sidebar.radio("Menu", ["Busca", "Discos"])
 
     if pagina == "Discos":
         tela_discos()
