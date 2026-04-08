@@ -139,6 +139,7 @@ def tela_busca():
         SELECT 
         "ID_CARGA_CAPTURA", 
         "NOME_DISCO", 
+        "TITULO",
         "NOME_ARQUIVO",
         "TIPO_ARQUIVO",
         "TAMANHO_ARQUIVO",
