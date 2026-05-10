@@ -63,42 +63,7 @@ def tela_discos():
 
         st.dataframe(df, use_container_width=True)
 
-# =============================
-# BUSCA
-# =============================
-# def tela_busca():
-#     st.title("🔍 Busca de Arquivos")
-#
-#     termo = st.text_input("Buscar por nome de arquivo:")
-#
-#     if st.button("Buscar"):
-#         if termo.strip() == "":
-#             st.warning("Digite algo.")
-#             return
-#
-#         conn = conectar()
-#
-#         query = """
-#         SELECT
-#         "ID_CARGA_CAPTURA",
-#         "NOME_DISCO",
-#         "NOME_PASTA",
-#         "NOME_ARQUIVO",
-#         "DATA_GRAVACAO",
-#         "TITULO",
-#         "TAMANHO_ARQUIVO",
-#         "DATA_ARQUIVO",
-#         "TIPO_ARQUIVO"
-#         FROM captura_web.tb_carga_captura
-#         WHERE "CAMINHO_COMPLETO" ILIKE %s
-#         ORDER BY "NOME_DISCO", "NOME_PASTA", "NOME_ARQUIVO";
-#         """
-#
-#         df = pd.read_sql(query, conn, params=[f"%{termo}%"])
-#         conn.close()
-#
-#         st.write(f"{len(df)} registros encontrados")
-#         st.dataframe(df, use_container_width=True)
+
 
 def tela_busca():
     st.title("🔍 Busca de Arquivos")
@@ -174,6 +139,94 @@ def tela_busca():
         st.success(f"{len(df)} registros encontrados")
         st.dataframe(df, use_container_width=True)
 
+
+def tela_catalogo():
+    st.title("🎬 Catálogo TMDB")  # nova função inserida em 10/05/2026
+
+    nome = st.text_input("Digite o nome do filme/série:")
+
+    if st.button("🔎 Buscar catálogo"):
+
+        if nome.strip() == "":
+            st.warning("Digite um nome para pesquisar.")
+            return
+
+        conn = conectar()
+
+        query = """
+        SELECT 
+            "NOME_NACIONAL",
+            "NOME_INTERNACIONAL",
+            "TIPO_VIDEO",
+            "ANO_CADASTRO",
+            "SINOPSE",
+            "DIRETOR",
+            "ELENCO",
+            "AUDIO_ORIGINAL",
+            "IMAGEM_URL"
+        FROM captura_web.tb_catalogo_tmdb
+        WHERE "NOME_NACIONAL" ILIKE %s
+        ORDER BY "ANO_CADASTRO", "NOME_NACIONAL"
+        """
+
+        df = pd.read_sql(
+            query,
+            conn,
+            params=[f"%{nome}%"]
+        )
+
+        conn.close()
+
+        st.success(f"{len(df)} registros encontrados")
+
+        # =============================
+        # EXIBIR RESULTADOS
+        # =============================
+        for _, row in df.iterrows():
+
+            with st.container(border=True):
+
+                col1, col2 = st.columns([1, 3])
+
+                # =============================
+                # IMAGEM
+                # =============================
+                with col1:
+
+                    if row["IMAGEM_URL"]:
+                        try:
+                            st.image(
+                                row["IMAGEM_URL"],
+                                use_container_width=True
+                            )
+                        except:
+                            st.warning("Imagem não disponível")
+
+                # =============================
+                # DADOS
+                # =============================
+                with col2:
+
+                    st.subheader(row["NOME_NACIONAL"])
+
+                    if row["NOME_INTERNACIONAL"]:
+                        st.caption(row["NOME_INTERNACIONAL"])
+
+                    st.write(f"🎞️ Tipo: {row['TIPO_VIDEO']}")
+                    st.write(f"📅 Ano: {row['ANO_CADASTRO']}")
+                    st.write(f"🎤 Áudio Original: {row['AUDIO_ORIGINAL']}")
+
+                    st.write(f"🎬 Diretor: {row['DIRETOR']}")
+
+                    st.markdown("### 👥 Elenco")
+                    st.write(row["ELENCO"])
+
+                    st.markdown("### 📖 Sinopse")
+                    st.write(row["SINOPSE"])
+
+
+
+
 # =============================
 # SISTEMA
 # =============================
@@ -187,12 +240,16 @@ def sistema():
         st.rerun()
 
     # pagina = st.sidebar.radio("Menu", ["Discos", "Busca"])
-    pagina = st.sidebar.radio("Menu", ["Busca", "Discos"])
+    pagina = st.sidebar.radio("Menu", ["Discos", "Busca", "Catálogo Interno"])
 
     if pagina == "Discos":
         tela_discos()
-    else:
+
+    elif pagina == "Busca":
         tela_busca()
+
+    elif pagina == "Catálogo Interno":
+        tela_catalogo()
 
 # =============================
 # MAIN
